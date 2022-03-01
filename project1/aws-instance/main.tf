@@ -80,8 +80,6 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private.id
 }
 
-
-
 data "aws_ami" "amazon_linux" {
   most_recent = true
 
@@ -124,18 +122,27 @@ resource "aws_security_group_rule" "app_server" {
   security_group_id = aws_security_group.app_server.id
 }
 
+locals{
+  vars = {
+    db_server_privateip = aws_instance.db_server.private_ip
+  } 
+  common_tags = {
+    Owner = "Kamran Biglari"
+  }
+}
+
 resource "aws_instance" "app_server" {
   ami           = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
   subnet_id = aws_subnet.public.id
   security_groups = [aws_security_group.app_server.id]
+  user_data = base64encode(templatefile("app-init.sh", local.vars ))
+
   tags = {
     Name = "Application Server"
   }
   depends_on = [aws_security_group.app_server]
 }
-
-
 
 resource "aws_security_group" "db_server" {
   name        = "app_server"
@@ -164,6 +171,7 @@ resource "aws_instance" "db_server" {
   instance_type = "t2.micro"
   subnet_id = aws_subnet.private.id
   security_groups = [aws_security_group.db_server.id]
+  user_data = file("db-init.sh")
   tags = {
     Name = "Application Server"
   }
