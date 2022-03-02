@@ -86,7 +86,7 @@ jobs:
       run: |
         pwd
         ls -lha
-        terraform fmt -check
+        terraform fmt
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
