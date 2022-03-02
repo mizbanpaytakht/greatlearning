@@ -83,7 +83,10 @@ jobs:
     # Checks that all Terraform configuration files adhere to a canonical format
     - name: Terraform Format
       working-directory: ./project1/aws-instance/
-      run: terraform fmt -check
+      run: |
+        pwd
+        ls -lha
+        terraform fmt -check
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
